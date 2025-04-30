@@ -1,0 +1,65 @@
+<!-- checkin.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+    #scanner { width: 100%; margin: 20px 0; }
+    #result { padding: 15px; margin-top: 20px; }
+    .success { background-color: #d4edda; }
+    .error { background-color: #f8d7da; }
+  </style>
+</head>
+<body>
+  <h1>Event Check-In</h1>
+  <div id="scanner">
+    <video id="preview" width="100%"></video>
+  </div>
+  <div id="result"></div>
+
+  <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+  <script>
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+    
+    scanner.addListener('scan', function(content) {
+      checkInAttendee(content);
+    });
+    
+    Instascan.Camera.getCameras().then(function(cameras) {
+      if (cameras.length > 0) {
+        scanner.start(cameras[0]);
+      } else {
+        $('#result').html('<div class="error">No cameras found</div>');
+      }
+    });
+    
+    function checkInAttendee(uniqueId) {
+      $.ajax({
+        url: 'https://script.google.com/macros/s/AKfycbzC4fsEqpHF6IGaRsrC8bzBr1CokRTWO43hUFTgNTKgDBBwtT87BuE9kBecq-dRX_sJKw/exec',
+        method: 'GET',
+        dataType: 'json',
+        data: {
+          action: 'checkin',
+          id: uniqueId
+        },
+        success: function(response) {
+          if (response.status === 'success') {
+            $('#result').html(`
+              <div class="success">
+                <h3>Check-in successful!</h3>
+                <p>Name: ${response.name}</p>
+                <p>Company: ${response.company}</p>
+                <p>Time: ${new Date().toLocaleString()}</p>
+              </div>
+            `);
+          } else {
+            $('#result').html(`<div class="error">${response.message}</div>`);
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>
