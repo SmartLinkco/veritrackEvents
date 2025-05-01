@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Tooplate">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap" rel="stylesheet">
+
+    <title>SmartlinkCo Tickets Page</title>
+
+
+    <!-- Additional CSS Files -->
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+
+    <link rel="stylesheet" type="text/css" href="assets/css/font-awesome.css">
+
+    <link rel="stylesheet" type="text/css" href="assets/css/owl-carousel.css">
+
+    <link rel="stylesheet" href="assets/css/tooplate-artxibition.css">
+
+    <style>
+        #regForm {
+            background: transparent;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #regForm input, #regForm select, #regForm textarea, #regForm button {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            background: transparent;
+        }
+
+        #regForm input:focus, #regForm select:focus, #regForm textarea:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        #regForm button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        #regForm button:hover {
+            background-color: #0056b3;
+        }
+
+        #regForm textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        #regForm select {
+            appearance: none;
+            background: transparent url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 viewBox%3D%220 0 4 5%22%3E%3Cpath fill%3D%22%23007bff%22 d%3D%22M2 0L0 2h4z%22/%3E%3C/svg%3E') no-repeat right 10px center;
+            background-size: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-content {
+            padding: 20px;
+            width: 50%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: #f0f0f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .modal-content {
+                width: 100%;
+            }
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        .modal {
+                        display: none;
+                        justify-content: center;
+                        align-items: center;
+                        position: fixed;
+                        z-index: 1000;
+                        left: 50%;
+                        top: 50%;
+                        transform: translate(-50%, -50%);
+                        background: transparent;
+                        padding: 20px;
+                        border-radius: 8px;
+                        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+                    }
+
+                    .overlay {
+                        display: none;
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: rgba(0, 0, 0, 0.5);
+                        z-index: 999;
+                    }
+
+                    .close {
+                        position: absolute;
+                        top: 10px;
+                        right: 10px;
+                        cursor: pointer;
+                        font-size: 20px;
+                    }
+                    .state-container {
+                    text-align: center;
+                    padding: 20px;
+                    }
+
+                    .state-container img {
+                    width: 80px;
+                    height: 80px;
+                    margin: 0 auto 20px;
+                    display: block;
+                    }
+
+                    .loading .spinner {
+                    border: 4px solid rgba(0,0,0,0.1);
+                    border-radius: 50%;
+                    border-top: 4px solid #7a3aff;
+                    width: 40px;
+                    height: 40px;
+                    animation: spin 1s linear infinite;
+                    margin: 0 auto 15px;
+                    }
+
+                    .success h3 { color: #2ecc71; }
+                    .error h3 { color: #e74c3c; }
+                    .loading p { color: #666; }
+
+                    .qr-preview {
+                    max-width: 200px;
+                    margin: 15px auto;
+                    border: 1px solid #eee;
+                    padding: 5px;
+                    }
+
+                    .countdown {
+                    color: #666;
+                    font-size: 0.9em;
+                    margin-top: 15px;
+                    }
+
+                    .retry-btn, .recover-link {
+                    display: inline-block;
+                    margin-top: 15px;
+                    color: #7a3aff;
+                    cursor: pointer;
+                    text-decoration: none;
+                    }
+
+                    @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                    }
+        /* Add to your stylesheet */
+        .loading-state, .success-state, .error-state {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .qr-code-preview {
+            max-width: 200px;
+            margin: 15px auto;
+            display: block;
+            border: 1px solid #eee;
+            padding: 5px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #7a3aff;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .countdown {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 15px;
+        }
+
+        .retry-btn, .recover-link {
+            color: #7a3aff;
+            cursor: pointer;
+        }
+
+        .error-state h3 { color: #e74c3c; }
+        .success-state h3 { color: #2ecc71; }
+    </style>
+
+    </head>
+    
+    <body>
+    
+    <!-- ***** Preloader Start ***** -->
+    <div id="js-preloader" class="js-preloader">
+      <div class="preloader-inner">
+        <span class="dot"></span>
+        <div class="dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    </div>
+    <!-- ***** Preloader End ***** -->
+    
+    <!-- ***** Pre HEader ***** -->
+    <div class="pre-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-sm-6">
+                    <span>Hey! The Show Is Starting In 5 Days.</span>
+                </div>
+                <div class="col-lg-6 col-sm-6">
+                    <div class="text-button">
+                        <a href="tel:+233592548849">Contact Us Now! <i class="fa fa-arrow-right"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ***** Header Area Start ***** -->
+    <header class="header-area header-sticky">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <nav class="main-nav">
+                        <!-- ***** Logo Start ***** -->
+                        <a href="index.html" class="logo">Smartlink<em>Co</em></a>
+                        <!-- ***** Logo End ***** -->
+                        <!-- ***** Menu Start ***** -->
+                        <ul class="nav">
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="tickets.html" class="active">Get Ticket</a></li> 
+                        </ul>        
+                        <a class='menu-trigger'>
+                            <span>Menu</span>
+                        </a>
+                        <!-- ***** Menu End ***** -->
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- ***** Header Area End ***** -->
+
+    <!-- ***** About Us Page ***** -->
+    <div class="page-heading-shows-events">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>Tickets Available!</h2>
+                    <span>Check out and grab your ticket right now.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tickets-page">
+        <div class="container">
+            <div class="row" style="margin: 10px 0;">
+                <!-- <div class="col-lg-12" style="margin: 10px 0;">
+                    <div class="search-box">
+                        <form id="subscribe" action="" method="get">
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <div class="search-heading">
+                                        <h4>Sort Tickets By:</h4>
+                                    </div>
+                                </div>
+                                <div class="col-lg-7">
+                                    <div class="row">
+                                        <div class="col-lg-3">
+                                            <select value="month">
+                                                <option value="month">Month</option>
+                                                <option name="June" id="June">June</option>
+                                                <option name="July" id="July">July</option>
+                                                <option name="August" id="August">August</option>
+                                                <option name="September" id="September">September</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <select value="location">
+                                                <option value="location">Location</option>
+                                                <option name="Brazil" id="Brazil">Brazil</option>
+                                                <option name="Europe" id="Europe">Europe</option>
+                                                <option name="US" id="US">US</option>
+                                                <option name="Asia" id="Asia">Asia</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <select value="month">
+                                                <option value="month">Price</option>
+                                                <option name="min" id="min">$0 - $50</option>
+                                                <option name="standard" id="standard">$50 - $100</option>
+                                                <option name="hight" id="hight">$100 - $200</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-3">
+                                            <fieldset>
+                                            <button type="submit" id="form-submit" class="main-dark-button">Submit</button>
+                                            </fieldset>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div> -->
+                <div class="col-lg-4">
+                    <div class="ticket-item">
+                        <div class="thumb">
+                            <img src="assets/images/ticket-01.jpg" alt="">
+                            <div class="price">
+                                <span>FREE<br><em>$0</em></span>
+                            </div>
+                        </div>
+                        <div class="down-content">
+                            <span>Standard</span>
+                            <h4>NextGen Web Conference</h4>
+                            <ul>
+                                <li><i class="fa fa-clock-o"></i> Thursday: 05:00 PM to 10:00 PM</li>
+                                <li><i class="fa fa-map-marker"></i>Movenpick Ambassador Hotel, Accra - Ghana</li>
+                            </ul>
+                            <div class="main-dark-button">
+                                <a href="#" class="open-modal" data-ticket-type="Standard" data-ticket-price="0">Register</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="ticket-item">
+                        <div class="thumb">
+                            <img src="assets/images/ticket-02.jpg" alt="">
+                            <div class="price">
+                                <span>1 ticket<br><em>$45</em></span>
+                            </div>
+                        </div>
+                        <div class="down-content">
+                            <span>Deluxe</span>
+                            <h4>NextGen Web Conference</h4>
+                            <ul>
+                                <li><i class="fa fa-clock-o"></i> Thursday: 05:00 PM to 10:00 PM</li>
+                                <li><i class="fa fa-map-marker"></i>Movenpick Ambassador Hotel, Accra - Ghana</li>
+                                <li><i class="fa fa-star"></i> Includes VIP Lounge Access</li>
+                            </ul>
+                            <div class="main-dark-button">
+                                <a href="#" class="open-modal" data-ticket-type="Deluxe" data-ticket-price="45">Purchase Ticket</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="ticket-item">
+                        <div class="thumb">
+                            <img src="assets/images/ticket-03.jpg" alt="">
+                            <div class="price">
+                                <span>1 ticket<br><em>$65</em></span>
+                            </div>
+                        </div>
+                        <div class="down-content">
+                            <span>Elite</span>
+                            <h4>NextGen Web Conference</h4>
+                            <ul>
+                                <li><i class="fa fa-clock-o"></i> Thursday: 05:00 PM to 10:00 PM</li>
+                                <li><i class="fa fa-map-marker"></i>Movenpick Ambassador Hotel, Accra - Ghana</li>
+                                <li><i class="fa fa-star"></i> Includes VIP Lounge & Backstage Access</li>
+                            </ul>
+                            <div class="main-dark-button">
+                                <a href="#" class="open-modal" data-ticket-type="Elite" data-ticket-price="65">Purchase Ticket</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal -->
+                <div id="ticketModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h1 id="ticketType"></h1>
+                        <form id="regForm">
+                            <input type="text" name="name" placeholder="Name" required>
+                            <input type="email" name="email" placeholder="Email" required>
+                            <input type="tel" name="phone" placeholder="Phone Number" required>
+                            <input type="text" name="company" placeholder="Company/Institution">
+                            <input type="text" name="position" placeholder="Position">
+                            <select name="howDidYouHear" required>
+                                <option value="" disabled selected>How did you hear about this event?</option>
+                                <option value="socialMedia">Social Media</option>
+                                <option value="email">Email</option>
+                                <option value="friend">Friend</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <textarea name="specialRequests" placeholder="Special Requests (e.g., dietary restrictions)"></textarea>
+                            <button type="submit" id="payButton">Register</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Overlay -->
+                <div id="modalOverlay" class="overlay"></div>
+
+                <script>
+                    const modal = document.getElementById('ticketModal');
+                    const overlay = document.getElementById('modalOverlay');
+                    const closeModal = document.querySelector('.close');
+                    const ticketType = document.getElementById('ticketType');
+                    const payButton = document.getElementById('payButton');
+
+                    document.querySelectorAll('.open-modal').forEach(button => {
+                        button.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const type = button.getAttribute('data-ticket-type');
+                            const price = button.getAttribute('data-ticket-price');
+                            ticketType.textContent = type + ' Ticket';
+                            payButton.textContent = 'Pay $' + price;
+                            payButton.setAttribute('data-price', price);
+                            modal.style.display = 'flex';
+                            overlay.style.display = 'block';
+                        });
+                    });
+
+                    closeModal.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        overlay.style.display = 'none';
+                    });
+
+                    overlay.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        overlay.style.display = 'none';
+                    });
+
+                    document.addEventListener("DOMContentLoaded", function() {
+                    const form = document.getElementById("regForm");
+                    if (!form) return;
+
+                    form.addEventListener("submit", async (e) => {
+                        e.preventDefault();
+                        
+                        const submitBtn = form.querySelector("button[type='submit']");
+                        const modal = document.getElementById("modal");
+                        const overlay = document.getElementById("overlay");
+                        const ticketType = document.getElementById("ticketType");
+                        const recoverLink = document.querySelector(".recover-link");
+                        
+                        if (!submitBtn || !modal || !overlay || !ticketType) {
+                        console.error("Required DOM elements not found");
+                        return;
+                        }
+
+                        // Store original state
+                        const originalBtnText = submitBtn.textContent;
+                        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDeVauShJ2kyc672KkzHuGcoTSOaYM2zDpnbgph2Jpmhji72L5xPkwraxUx81NGfTSlw/exec";
+
+                        // Loading state
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = "Registering...";
+                        ticketType.innerHTML = createLoadingState();
+
+                        try {
+                        const formData = new FormData(form);
+                        const response = await fetch(SCRIPT_URL, {
+                            method: "POST",
+                            headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                            body: new URLSearchParams(formData).toString()
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+                        }
+                        
+                        const data = await response.json();
+                        
+                        if (data.status === "success") {
+                            ticketType.innerHTML = createSuccessState(
+                            data.data.name, 
+                            data.data.email, 
+                            data.data.qrCodeUrl,
+                            data.data.registrationId
+                            );
+                            startAutoClose(modal, overlay, form);
+                        } else if (data.code === 'DUPLICATE_EMAIL') {
+                            ticketType.innerHTML = createErrorState(
+                            data.message, 
+                            true, 
+                            false,
+                            data.existingId
+                            );
+                        } else {
+                            ticketType.innerHTML = createErrorState(
+                            data.message || "Registration failed",
+                            false,
+                            false
+                            );
+                        }
+                        } catch (error) {
+                        console.error("Submission error:", error);
+                        ticketType.innerHTML = createErrorState(
+                            error instanceof TypeError ? "Network error - please check your connection" : error.message,
+                            false,
+                            error instanceof TypeError
+                        );
+                        } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                        }
+                    });
+
+                    // Handle QR recovery
+                    document.addEventListener("click", function(e) {
+                        if (e.target.classList.contains("recover-link")) {
+                        e.preventDefault();
+                        const email = document.getElementById("email").value;
+                        recoverQRCode(email);
+                        }
+                    });
+
+                    // Helper functions
+                    function createLoadingState() {
+                        return `
+                        <div class="state-container loading">
+                            <div class="spinner"></div>
+                            <p>Processing your registration...</p>
+                        </div>
+                        `;
+                    }
+
+                    function createSuccessState(name, email, qrCodeUrl, registrationId) {
+                        return `
+                        <div class="state-container success">
+                            <img src="assets/images/success.png" alt="Success">
+                            <h3>Registration Successful!</h3>
+                            <p>Attendee: <strong>${name}</strong></p>
+                            <p>QR code sent to <strong>${email}</strong></p>
+                            ${qrCodeUrl ? `
+                            <div class="qr-container">
+                                <img src="${qrCodeUrl}" class="qr-preview" alt="QR Code">
+                                <p class="registration-id">ID: ${registrationId}</p>
+                            </div>
+                            ` : ''}
+                            <div class="actions">
+                            <button onclick="downloadQR('${qrCodeUrl}', '${name}')">Download QR</button>
+                            </div>
+                            <div class="countdown">Closing in <span>10</span>s</div>
+                        </div>
+                        `;
+                    }
+
+                    function createErrorState(message, isDuplicate = false, isNetworkError = false, existingId = null) {
+                        return `
+                        <div class="state-container error">
+                            <img src="assets/images/${isNetworkError ? 'warning' : 'error'}.png" alt="Error">
+                            <h3>${isNetworkError ? 'Connection Error' : 'Registration Failed'}</h3>
+                            <p>${message}</p>
+                            ${isDuplicate ? 
+                            `<div class="recovery-options">
+                                <a href="#" class="recover-link" data-id="${existingId || ''}">Resend my QR code</a>
+                                <span>or</span>
+                                <button class="retry-btn">Try Again</button>
+                            </div>` : 
+                            '<button class="retry-btn">Try Again</button>'
+                            }
+                        </div>
+                        `;
+                    }
+
+                    async function recoverQRCode(email) {
+                        const ticketType = document.getElementById("ticketType");
+                        if (!ticketType) return;
+
+                        ticketType.innerHTML = createLoadingState();
+                        
+                        try {
+                        const response = await fetch("YOUR_SCRIPT_URL_HERE?action=recoverQR", {
+                            method: "POST",
+                            headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            },
+                            body: `email=${encodeURIComponent(email)}`
+                        });
+
+                        const data = await response.json();
+                        
+                        if (data.status === "success") {
+                            ticketType.innerHTML = createSuccessState(
+                            data.name,
+                            data.email,
+                            data.qrCodeUrl || '',
+                            data.registrationId || ''
+                            );
+                        } else {
+                            throw new Error(data.message || "Recovery failed");
+                        }
+                        } catch (error) {
+                        ticketType.innerHTML = createErrorState(
+                            error.message,
+                            false,
+                            error instanceof TypeError
+                        );
+                        }
+                    }
+
+                    function startAutoClose(modal, overlay, form) {
+                        let seconds = 10;
+                        const countdownEl = modal.querySelector('.countdown span');
+                        
+                        const timer = setInterval(() => {
+                        seconds--;
+                        if (countdownEl) countdownEl.textContent = seconds;
+                        
+                        if (seconds <= 0) {
+                            clearInterval(timer);
+                            modal.style.display = 'none';
+                            overlay.style.display = 'none';
+                            form.reset();
+                        }
+                        }, 1000);
+                    }
+
+                    // Add to global scope for button onclick handlers
+                    window.downloadQR = function(url, name) {
+                        if (!url) return;
+                        
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `${name.replace(/\s+/g, '_')}_Event_QR.png`;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
+                    });
+                    
+                </script>
+                <div class="col-lg-12">
+                    <div class="pagination">
+                        <ul>
+                            <li><a href="#">Prev</a></li>
+                            <li class="active"><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">Next</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- *** Subscribe *** -->
+    <div class="subscribe">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <h4>Subscribe Our Newsletter:</h4>
+                </div>
+                <div class="col-lg-8">
+                    <form id="subscribe" action="" method="get">
+                        <div class="row">
+                          <div class="col-lg-9">
+                            <fieldset>
+                              <input name="email" type="text" id="email" pattern="[^ @]*@[^ @]*" placeholder="Your Email Address" required="">
+                            </fieldset>
+                          </div>
+                          <div class="col-lg-3">
+                            <fieldset>
+                              <button type="submit" id="form-submit" class="main-dark-button">Submit</button>
+                            </fieldset>
+                          </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- *** Footer *** -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4">
+                    <div class="address">
+                        <h4>Sunny Hill Festival Address</h4>
+                        <span>5 College St NW, <br>Norcross, GA 30071<br>United States</span>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="links">
+                        <h4>Useful Links</h4>
+                        <ul>
+                            <li><a href="#">Info</a></li>
+                            <li><a href="#">Venues</a></li>
+                            <li><a href="#">Guides</a></li>
+                            <li><a href="#">Videos</a></li>
+                            <li><a href="#">Outreach</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="hours">
+                        <h4>Open Hours</h4>
+                        <ul>
+                            <li>Mon to Fri: 10:00 AM to 8:00 PM</li>
+                            <li>Sat - Sun: 11:00 AM to 4:00 PM</li>
+                            <li>Holidays: Closed</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="under-footer">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <p>São Conrado, Rio de Janeiro</p>
+                            </div>
+                            <div class="col-lg-6">
+                                <p class="copyright">Copyright 2021 Smartlink Co. All rights reserved. 
+                    
+                    			<br>Powered by: <a rel="nofollow" href="https://veri-track.vercel.app" target="_parent">VeriTrack ✓</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-12">
+                    <div class="sub-footer">
+                        <div class="row">
+                            <div class="col-lg-3">
+                                <div class="logo"><span>Smartlink<em>Co</em></span></div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="menu">
+                                    <ul>
+                                        <li><a href="index.html" class="active">Home</a></li>
+                                        <li><a href="tickets.html">Tickets</a></li> 
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="social-links">
+                                    <ul>
+                                        <li><a href="#"><i class="fa fa-twitter"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-facebook"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-behance"></i></a></li>
+                                        <li><a href="#"><i class="fa fa-instagram"></i></a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- jQuery -->
+    <script src="assets/js/jquery-2.1.0.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="assets/js/popper.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
+
+    <!-- Plugins -->
+    <script src="assets/js/scrollreveal.min.js"></script>
+    <script src="assets/js/waypoints.min.js"></script>
+    <script src="assets/js/jquery.counterup.min.js"></script>
+    <script src="assets/js/imgfix.min.js"></script> 
+    <script src="assets/js/mixitup.js"></script> 
+    <script src="assets/js/accordions.js"></script>
+    <script src="assets/js/owl-carousel.js"></script>
+    
+    <!-- Global Init -->
+    <script src="assets/js/custom.js"></script>
+
+  </body>
+</html>

@@ -1,23 +1,136 @@
-<form id="regForm">
-    <input type="text" name="name" placeholder="Name" required>
-    <input type="email" name="email" placeholder="Email" required>
-    <input type="text" name="company" placeholder="Company">
-    <button type="submit">Register</button>
-  </form>
-  
-  <script>
-    document.getElementById("regForm").addEventListener("submit", (e) => {
-      e.preventDefault();
-      const formData = new FormData(e.target);
-      const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzC4fsEqpHF6IGaRsrC8bzBr1CokRTWO43hUFTgNTKgDBBwtT87BuE9kBecq-dRX_sJKw/exec";
-      
-      fetch(SCRIPT_URL + "?action=register", {
-        method: "POST",
-        body: new URLSearchParams(formData)
-      })
-      .then(response => response.json())
-      .then(data => {
-        alert("Registered! Check your email for QR code.");
-      });
-    });
-  </script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Registration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #regForm {
+            background: #ffffff;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        #regForm input, #regForm select, #regForm textarea, #regForm button {
+            width: 100%;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        #regForm input:focus, #regForm select:focus, #regForm textarea:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        #regForm button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        #regForm button:hover {
+            background-color: #0056b3;
+        }
+
+        #regForm textarea {
+            resize: none;
+            height: 80px;
+        }
+
+        #regForm select {
+            appearance: none;
+            background: #fff url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns%3D%22http%3A//www.w3.org/2000/svg%22 viewBox%3D%220 0 4 5%22%3E%3Cpath fill%3D%22%23007bff%22 d%3D%22M2 0L0 2h4z%22/%3E%3C/svg%3E') no-repeat right 10px center;
+            background-size: 10px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <form id="regForm">
+        <h1>Register for the Event</h1>
+        <input type="text" name="name" placeholder="Name" required>
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="tel" name="phone" placeholder="Phone Number" required>
+        <input type="text" name="company" placeholder="Company/Institution">
+        <input type="text" name="position" placeholder="Position">
+        <select name="howDidYouHear" required>
+            <option value="" disabled selected>How did you hear about this event?</option>
+            <option value="socialMedia">Social Media</option>
+            <option value="email">Email</option>
+            <option value="friend">Friend</option>
+            <option value="other">Other</option>
+        </select>
+        <textarea name="specialRequests" placeholder="Special Requests (e.g., dietary restrictions)"></textarea>
+        <button type="submit">Register</button>
+    </form>
+    
+    <script>
+        function checkInAttendee(uniqueId) {
+        const resultDiv = document.getElementById("result");
+        resultDiv.innerHTML = '<div class="processing">⌛ Verifying attendee...</div>';
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3DrVE1SP32waf1K1uoOBU-dxKMjNcobvJ-xXtbCJCNDinNCvvlTEOvddoxFzhTSuL7A/exec';
+        
+        fetch(SCRIPT_URL + `?action=checkin&id=${uniqueId}`)
+            .then(response => response.json())
+            .then(data => {
+            if (data.status === 'success') {
+                resultDiv.innerHTML = `
+                <div class="success">
+                    <h3>✅ Check-In Successful</h3>
+                    <p><strong>${data.name}</strong></p>
+                    ${data.position ? `<p>${data.position}</p>` : ''}
+                    <p>${data.company || 'No company specified'}</p>
+                    <p class="timestamp">Checked in at ${data.checkinTime}</p>
+                    <div class="actions">
+                    <button onclick="printBadge()">Print Badge</button>
+                    </div>
+                </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                <div class="error">
+                    <h3>❌ ${data.message.split('at:')[0]}</h3>
+                    ${data.message.includes('at:') ? 
+                    `<p class="timestamp">Previous check-in: ${data.message.split('at:')[1]}</p>` : ''}
+                </div>
+                `;
+            }
+            })
+            .catch(error => {
+            resultDiv.innerHTML = `
+                <div class="error">
+                <h3>⚠️ System Error</h3>
+                <p>Please try again or contact support</p>
+                </div>
+            `;
+            });
+        }
+    </script>
+</body>
+</html>
