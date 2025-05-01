@@ -462,8 +462,10 @@
                         const form = document.getElementById("regForm");
                     
                         // Constants
-                        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3I6HD3IPu2XhY5GXTbDYbBhIYLuF6bLEhr1ff-uquK4DWwyUbqGY-f4tADNR-sPAbew/exec";
-                        const ALLOWED_ORIGIN = 'https://smartlinkco.github.io';
+                        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzazXdILj3MbTsOwsZubr5sFjECms-gQOU7kUt5rWbBedqmPd_PaYRFAo-Ko9CAx-4BYg/exec";
+                        const ALLOWED_ORIGIN = window.location.origin.includes('github.io') 
+                            ? 'https://smartlinkco.github.io' 
+                            : window.location.origin;
                     
                         // Modal event handlers
                         document.querySelectorAll('.open-modal').forEach(button => {
@@ -505,11 +507,23 @@
                     
                             try {
                                 const formData = new FormData(form);
+                                formData.append('origin', ALLOWED_ORIGIN);
+                                formData.append('action', 'register');
                     
-                                const response = await fetch(SCRIPT_URL + "?action=register", {
+                                const response = await fetch(SCRIPT_URL, {
                                     method: "POST",
-                                    body: new URLSearchParams(formData)
+                                    headers: {
+                                        "Content-Type": "application/x-www-form-urlencoded",
+                                        "Origin": ALLOWED_ORIGIN
+                                    },
+                                    body: new URLSearchParams(formData),
+                                    credentials: 'omit'
                                 });
+                    
+                                if (!response.ok) {
+                                    const errorData = await response.json();
+                                    throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+                                }
                     
                                 const data = await response.json();
                     
@@ -553,6 +567,7 @@
                                       <img src="assets/images/${isNetworkError ? 'warning' : 'error'}.png" alt="Error">
                                       <h6>${isNetworkError ? 'Connection Error' : 'Registration Failed'}</h6>
                                       <p>${error.message}, retry...</p>
+                                      <button class="retry-btn" onclick="location.reload()">Try Again</button>
                                     </div>`;
                         }
                     
