@@ -22,168 +22,148 @@
   <script src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-  const scanner = new Instascan.Scanner({ 
-    video: document.getElementById('preview'),
-    mirror: false,
-    captureImage: false,
-    backgroundScan: true
-  });
-  
-  const resultDiv = document.getElementById("result");
-  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwPLdiZ6UAbPMcTfEvbItXc_BNnacShHmwLIKOqYsaV3wQZcwEEnAd5sbBlGFY1fD17g/exec';
-  
-  // Initialize scanner
-  function initScanner() {
-    Instascan.Camera.getCameras()
-      .then(cameras => {
-        if (cameras.length > 0) {
-          const backCam = cameras.find(c => c.name.includes('back')) || cameras[0];
-          scanner.start(backCam);
-          showScanReady();
-        } else {
-          showCameraError('No cameras found');
-        }
-      })
-      .catch(err => {
-        console.error("Camera error:", err);
-        showCameraError(err.message || 'Failed to access camera');
-      });
-  }
-  
-  // Scan handler
-  scanner.addListener('scan', function(content) {
-    checkInAttendee(content);
-  });
-  
-  // Check-in function
-  async function checkInAttendee(uniqueId) {
-    showProcessing();
+        // Scanner elements
+        const scanner = new Instascan.Scanner({ 
+            video: document.getElementById('preview'),
+            mirror: false,
+            captureImage: false,
+            backgroundScan: true
+        });
+        const resultDiv = document.getElementById("result");
+        
+        // Constants
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw3I6HD3IPu2XhY5GXTbDYbBhIYLuF6bLEhr1ff-uquK4DWwyUbqGY-f4tADNR-sPAbew/exec';
+        const ALLOWED_ORIGIN = 'https://smartlinkco.github.io';
     
-    try {
-      // Use POST instead of GET for better security
-      const response = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `action=checkin&id=${encodeURIComponent(uniqueId)}`,
-        credentials: 'omit'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      
-      if (data.status === 'success') {
-        showCheckInSuccess(data);
-      } else if (data.code === 'ALREADY_CHECKED_IN') {
-        showAlreadyCheckedIn(data);
-      } else {
-        throw new Error(data.message || "Check-in failed");
-      }
-    } catch (error) {
-      showCheckInError(error);
-    }
-  }
-  
-  // UI Helper functions
-  function showScanReady() {
-    resultDiv.innerHTML = `
-      <div class="scan-ready">
-        <div class="scanner-frame"></div>
-        <p>Scanning for QR codes...</p>
-      </div>
-    `;
-  }
-  
-  function showProcessing() {
-    resultDiv.innerHTML = `
-      <div class="processing">
-        <div class="spinner"></div>
-        <p>Verifying attendee...</p>
-      </div>
-    `;
-  }
-  
-  function showCheckInSuccess(data) {
-    resultDiv.innerHTML = `
-      <div class="success">
-        <h3>✅ Check-In Successful</h3>
-        <div class="attendee-info">
-          <p class="name">${data.name}</p>
-          ${data.position ? `<p class="position">${data.position}</p>` : ''}
-          ${data.company ? `<p class="company">${data.company}</p>` : ''}
-        </div>
-        <div class="timestamps">
-          <p>Registered: ${data.registrationTime}</p>
-          <p>Checked in: ${data.checkinTime}</p>
-        </div>
-        <div class="actions">
-          <button onclick="printBadge()">Print Badge</button>
-          <button onclick="initScanner()">Next Attendee</button>
-        </div>
-      </div>
-    `;
-  }
-  
-  function showAlreadyCheckedIn(data) {
-    resultDiv.innerHTML = `
-      <div class="warning">
-        <h3>⚠️ Already Checked In</h3>
-        <div class="attendee-info">
-          <p class="name">${data.name}</p>
-          ${data.position ? `<p class="position">${data.position}</p>` : ''}
-          ${data.company ? `<p class="company">${data.company}</p>` : ''}
-        </div>
-        <div class="timestamps">
-          <p class="previous-checkin">Previous check-in: ${data.message.split('at:')[1]}</p>
-        </div>
-        <div class="actions">
-          <button onclick="initScanner()">Continue Anyway</button>
-        </div>
-      </div>
-    `;
-  }
-  
-  function showCheckInError(error) {
-    resultDiv.innerHTML = `
-      <div class="error">
-        <h3>❌ ${error.message.includes('at:') ? 
-          error.message.split('at:')[0] : 'Check-In Failed'}</h3>
-        <p>${error.message.includes('at:') ? 
-          `Previous check-in: ${error.message.split('at:')[1]}` : 
-          error.message}</p>
-        <div class="actions">
-          <button onclick="initScanner()">Try Again</button>
-        </div>
-      </div>
-    `;
-  }
-  
-  function showCameraError(message) {
-    resultDiv.innerHTML = `
-      <div class="error">
-        <h3>⚠️ Camera Error</h3>
-        <p>${message}</p>
-        <button onclick="initScanner()">Retry</button>
-      </div>
-    `;
-  }
-  
-  // Add to global scope for button handlers
-  window.printBadge = function() {
-    // Implement your badge printing logic here
-    console.log("Print badge functionality would go here");
-  };
-  
-  window.initScanner = initScanner;
-  
-  // Initialize on load
-  initScanner();
-});
+        // Initialize scanner
+        initScanner();
+    
+        // Event listeners
+        scanner.addListener('scan', handleScan);
+    
+        // Functions
+        function initScanner() {
+            Instascan.Camera.getCameras()
+                .then(cameras => {
+                    if (cameras.length > 0) {
+                        const backCam = cameras.find(c => c.name.includes('back')) || cameras[0];
+                        scanner.start(backCam);
+                        showScanReady();
+                    } else {
+                        showCameraError('No cameras found');
+                    }
+                })
+                .catch(showCameraError);
+        }
+    
+        async function handleScan(content) {
+            showProcessing();
+            
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Origin': ALLOWED_ORIGIN
+                    },
+                    body: `action=checkin&id=${encodeURIComponent(content)}&origin=${encodeURIComponent(ALLOWED_ORIGIN)}`,
+                    credentials: 'omit'
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    showCheckInSuccess(data);
+                } else if (data.code === 'ALREADY_CHECKED_IN') {
+                    showAlreadyCheckedIn(data);
+                } else {
+                    throw new Error(data.message || "Check-in failed");
+                }
+            } catch (error) {
+                showCheckInError(error);
+            }
+        }
+    
+        function showScanReady() {
+            resultDiv.innerHTML = `<div class="scan-ready">
+                                    <div class="scanner-frame"></div>
+                                    <p>Scanning for QR codes...</p>
+                                  </div>`;
+        }
+    
+        function showProcessing() {
+            resultDiv.innerHTML = `<div class="processing">
+                                    <div class="spinner"></div>
+                                    <p>Verifying attendee...</p>
+                                  </div>`;
+        }
+    
+        function showCheckInSuccess(data) {
+            resultDiv.innerHTML = `<div class="success">
+                                    <h3>✅ Check-In Successful</h3>
+                                    <div class="attendee-info">
+                                      <p class="name">${data.name}</p>
+                                      ${data.position ? `<p class="position">${data.position}</p>` : ''}
+                                      ${data.company ? `<p class="company">${data.company}</p>` : ''}
+                                    </div>
+                                    <div class="timestamps">
+                                      <p>Registered: ${data.registrationTime}</p>
+                                      <p>Checked in: ${data.checkinTime}</p>
+                                    </div>
+                                    <div class="actions">
+                                      <button onclick="printBadge()">Print Badge</button>
+                                      <button onclick="initScanner()">Next Attendee</button>
+                                    </div>
+                                  </div>`;
+        }
+    
+        function showAlreadyCheckedIn(data) {
+            resultDiv.innerHTML = `<div class="warning">
+                                    <h3>⚠️ Already Checked In</h3>
+                                    <div class="attendee-info">
+                                      <p class="name">${data.name}</p>
+                                      ${data.position ? `<p class="position">${data.position}</p>` : ''}
+                                      ${data.company ? `<p class="company">${data.company}</p>` : ''}
+                                    </div>
+                                    <div class="timestamps">
+                                      <p class="previous-checkin">Previous check-in: ${data.message.split('at:')[1]}</p>
+                                    </div>
+                                    <div class="actions">
+                                      <button onclick="initScanner()">Continue Anyway</button>
+                                    </div>
+                                  </div>`;
+        }
+    
+        function showCheckInError(error) {
+            resultDiv.innerHTML = `<div class="error">
+                                    <h3>❌ ${error.message.includes('at:') ? 
+                                      error.message.split('at:')[0] : 'Check-In Failed'}</h3>
+                                    <p>${error.message.includes('at:') ? 
+                                      `Previous check-in: ${error.message.split('at:')[1]}` : 
+                                      error.message}</p>
+                                    <div class="actions">
+                                      <button onclick="initScanner()">Try Again</button>
+                                    </div>
+                                  </div>`;
+        }
+    
+        function showCameraError(error) {
+            const message = error.message || 'Failed to access camera';
+            resultDiv.innerHTML = `<div class="error">
+                                    <h3>⚠️ Camera Error</h3>
+                                    <p>${message}</p>
+                                    <button onclick="initScanner()">Retry</button>
+                                  </div>`;
+        }
+    
+        // Global functions
+        window.printBadge = function() {
+            // Implement badge printing logic here
+            console.log("Print badge functionality would go here");
+        };
+    
+        window.initScanner = initScanner;
+    });
     </script>
 </body>
 </html>

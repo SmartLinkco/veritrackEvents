@@ -141,8 +141,8 @@
                     }
 
                     .state-container img {
-                    width: 80px;
-                    height: 80px;
+                    width: 40px;
+                    height: 40px;
                     margin: 0 auto 20px;
                     display: block;
                     }
@@ -452,146 +452,126 @@
                 <div id="modalOverlay" class="overlay"></div>
 
                 <script>
-                    const modal = document.getElementById('ticketModal');
-                    const overlay = document.getElementById('modalOverlay');
-                    const closeModal = document.querySelector('.close');
-                    const ticketType = document.getElementById('ticketType');
-                    const payButton = document.getElementById('payButton');
-
-                    document.querySelectorAll('.open-modal').forEach(button => {
-                        button.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            const type = button.getAttribute('data-ticket-type');
-                            const price = button.getAttribute('data-ticket-price');
-                            ticketType.textContent = type + ' Ticket';
-                            payButton.textContent = 'Pay $' + price;
-                            payButton.setAttribute('data-price', price);
-                            modal.style.display = 'flex';
-                            overlay.style.display = 'block';
-                        });
-                    });
-
-                    closeModal.addEventListener('click', () => {
-                        modal.style.display = 'none';
-                        overlay.style.display = 'none';
-                    });
-
-                    overlay.addEventListener('click', () => {
-                        modal.style.display = 'none';
-                        overlay.style.display = 'none';
-                    });
-
                     document.addEventListener("DOMContentLoaded", function() {
-                    const form = document.getElementById("regForm");
-                    if (!form) return;
-
-                    document.addEventListener("DOMContentLoaded", function() {
+                        // Modal elements
+                        const modal = document.getElementById('ticketModal');
+                        const overlay = document.getElementById('modalOverlay');
+                        const closeModal = document.querySelector('.close');
+                        const ticketType = document.getElementById('ticketType');
+                        const payButton = document.getElementById('payButton');
                         const form = document.getElementById("regForm");
-                        if (!form) return;
-
-                        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWHbH28wEk5GEoyUY4G4g7Atyg3tlk1fGJBE145AvoJnIbYYRxHWm01v6JAeh84tc3w/exec";
+                    
+                        // Constants
+                        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3I6HD3IPu2XhY5GXTbDYbBhIYLuF6bLEhr1ff-uquK4DWwyUbqGY-f4tADNR-sPAbew/exec";
                         const ALLOWED_ORIGIN = 'https://smartlinkco.github.io';
-
-                        form.addEventListener("submit", async (e) => {
-                            e.preventDefault();
-                            
-                            const submitBtn = form.querySelector("button[type='submit']");
-                            const modal = document.getElementById("modal");
-                            const overlay = document.getElementById("overlay");
-                            const ticketType = document.getElementById("ticketType");
-                            
-                            if (!submitBtn || !modal || !overlay || !ticketType) {
-                            console.error("Required DOM elements not found");
-                            return;
-                            }
-
-                            // Loading state
-                            submitBtn.disabled = true;
-                            submitBtn.textContent = "Registering...";
-                            ticketType.innerHTML = createLoadingState();
-
-                            try {
-                            const formData = new FormData(form);
-                            formData.append('origin', ALLOWED_ORIGIN);
-                            
-                            const response = await fetch(SCRIPT_URL, {
-                                method: "POST",
-                                headers: {
-                                "Content-Type": "application/x-www-form-urlencoded",
-                                "Origin": ALLOWED_ORIGIN
-                                },
-                                body: new URLSearchParams(formData).toString(),
-                                credentials: 'omit'
+                    
+                        // Modal event handlers
+                        document.querySelectorAll('.open-modal').forEach(button => {
+                            button.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                const type = button.getAttribute('data-ticket-type');
+                                const price = button.getAttribute('data-ticket-price');
+                                ticketType.textContent = type + ' Ticket';
+                                payButton.textContent = 'Pay $' + price;
+                                payButton.setAttribute('data-price', price);
+                                modal.style.display = 'flex';
+                                overlay.style.display = 'block';
                             });
-
-                            if (!response.ok) {
-                                const errorData = await response.json();
-                                throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
-                            }
-                            
-                            const data = await response.json();
-                            
-                            if (data.status === "success") {
-                                ticketType.innerHTML = createSuccessState(data.data);
-                                startAutoClose(modal, overlay, form);
-                            } else {
-                                ticketType.innerHTML = createErrorState(data);
-                            }
-                            } catch (error) {
-                            ticketType.innerHTML = createErrorState({
-                                message: error.message,
-                                code: error instanceof TypeError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR'
-                            });
-                            } finally {
-                            submitBtn.disabled = false;
-                            submitBtn.textContent = "Register";
-                            }
                         });
-
-                        // Helper functions
+                    
+                        closeModal.addEventListener('click', closeModalHandler);
+                        overlay.addEventListener('click', closeModalHandler);
+                    
+                        // Form submission handler
+                        payButton.addEventListener("click", handleFormSubmission);
+                    
+                        // Functions
+                        function closeModalHandler() {
+                            modal.style.display = 'none';
+                            overlay.style.display = 'none';
+                        }
+                    
+                        async function handleFormSubmission(e) {
+                            e.preventDefault();
+                            if (!form.checkValidity()) {
+                                form.reportValidity();
+                                return;
+                            }
+                    
+                            // Set loading state
+                            payButton.disabled = true;
+                            payButton.textContent = "Registering...";
+                            ticketType.innerHTML = createLoadingState();
+                    
+                            try {
+                                const formData = new FormData(form);
+                    
+                                const response = await fetch(SCRIPT_URL + "?action=register", {
+                                    method: "POST",
+                                    body: new URLSearchParams(formData)
+                                });
+                    
+                                const data = await response.json();
+                    
+                                if (data.status === "success") {
+                                    ticketType.innerHTML = createSuccessState(data.data);
+                                    startAutoClose(modal, overlay, form);
+                                } else {
+                                    throw new Error(data.message || "Registration failed");
+                                }
+                            } catch (error) {
+                                ticketType.innerHTML = createErrorState({
+                                    message: error.message,
+                                    code: error instanceof TypeError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR'
+                                });
+                            } finally {
+                                payButton.disabled = false;
+                                payButton.textContent = "Register";
+                            }
+                        }
+                    
                         function createLoadingState() {
-                            return `<div class="loading">Processing...</div>`;
+                            return `<div class="state-container loading">
+                                      <div class="spinner"></div>
+                                      <p>Processing your registration...</p>
+                                    </div>`;
                         }
-
+                    
                         function createSuccessState(data) {
-                            return `
-                            <div class="success">
-                                <h3>Registration Successful!</h3>
-                                <p>QR code sent to ${data.email}</p>
-                                <img src="${data.qrCodeUrl}" class="qr-code">
-                                <div class="countdown">Closing in <span>10</span>s</div>
-                            </div>
-                            `;
+                            return `<div class="state-container success">
+                                      <img src="assets/images/success.png" alt="Success">
+                                      <h6>Registration Successful!</h6>
+                                      <p>QR code sent to <strong>${data.email}</strong></p>
+                                      <img src="${data.qrCodeUrl}" class="qr-preview" alt="QR Code">
+                                      <div class="countdown">Closing in <span>10</span>s</div>
+                                    </div>`;
                         }
-
-                        function createErrorState(data) {
-                            const isNetworkError = data.code === 'NETWORK_ERROR';
-                            return `
-                            <div class="error">
-                                <h3>${isNetworkError ? 'Network Error' : 'Registration Failed'}</h3>
-                                <p>${data.message}</p>
-                                <button onclick="location.reload()">Try Again</button>
-                            </div>
-                            `;
+                    
+                        function createErrorState(error) {
+                            const isNetworkError = error.code === 'NETWORK_ERROR';
+                            return `<div class="state-container error">
+                                      <img src="assets/images/${isNetworkError ? 'warning' : 'error'}.png" alt="Error">
+                                      <h6>${isNetworkError ? 'Connection Error' : 'Registration Failed'}</h6>
+                                      <p>${error.message}, retry...</p>
+                                    </div>`;
                         }
-
+                    
                         function startAutoClose(modal, overlay, form) {
                             let seconds = 10;
                             const countdownEl = modal.querySelector('.countdown span');
                             const timer = setInterval(() => {
-                            seconds--;
-                            if (countdownEl) countdownEl.textContent = seconds;
-                            if (seconds <= 0) {
-                                clearInterval(timer);
-                                modal.style.display = 'none';
-                                overlay.style.display = 'none';
-                                form.reset();
-                            }
+                                seconds--;
+                                if (countdownEl) countdownEl.textContent = seconds;
+                                if (seconds <= 0) {
+                                    clearInterval(timer);
+                                    modal.style.display = 'none';
+                                    overlay.style.display = 'none';
+                                    form.reset();
+                                }
                             }, 1000);
                         }
-                        });
-                    
-                </script>
+                    });
+                    </script>
                 <div class="col-lg-12">
                     <div class="pagination">
                         <ul>
