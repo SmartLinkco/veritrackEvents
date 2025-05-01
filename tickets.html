@@ -485,204 +485,111 @@
                     const form = document.getElementById("regForm");
                     if (!form) return;
 
-                    form.addEventListener("submit", async (e) => {
-                        e.preventDefault();
-                        
-                        const submitBtn = form.querySelector("button[type='submit']");
-                        const modal = document.getElementById("modal");
-                        const overlay = document.getElementById("overlay");
-                        const ticketType = document.getElementById("ticketType");
-                        const recoverLink = document.querySelector(".recover-link");
-                        
-                        if (!submitBtn || !modal || !overlay || !ticketType) {
-                        console.error("Required DOM elements not found");
-                        return;
-                        }
+                    document.addEventListener("DOMContentLoaded", function() {
+                        const form = document.getElementById("regForm");
+                        if (!form) return;
 
-                        // Store original state
-                        const originalBtnText = submitBtn.textContent;
-                        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyDeVauShJ2kyc672KkzHuGcoTSOaYM2zDpnbgph2Jpmhji72L5xPkwraxUx81NGfTSlw/exec";
+                        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzoWHbH28wEk5GEoyUY4G4g7Atyg3tlk1fGJBE145AvoJnIbYYRxHWm01v6JAeh84tc3w/exec";
+                        const ALLOWED_ORIGIN = 'https://smartlinkco.github.io';
 
-                        // Loading state
-                        submitBtn.disabled = true;
-                        submitBtn.textContent = "Registering...";
-                        ticketType.innerHTML = createLoadingState();
-
-                        try {
-                        const formData = new FormData(form);
-                        const response = await fetch(SCRIPT_URL, {
-                            method: "POST",
-                            headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
-                            },
-                            body: new URLSearchParams(formData).toString()
-                        });
-
-                        if (!response.ok) {
-                            const errorData = await response.json();
-                            throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
-                        }
-                        
-                        const data = await response.json();
-                        
-                        if (data.status === "success") {
-                            ticketType.innerHTML = createSuccessState(
-                            data.data.name, 
-                            data.data.email, 
-                            data.data.qrCodeUrl,
-                            data.data.registrationId
-                            );
-                            startAutoClose(modal, overlay, form);
-                        } else if (data.code === 'DUPLICATE_EMAIL') {
-                            ticketType.innerHTML = createErrorState(
-                            data.message, 
-                            true, 
-                            false,
-                            data.existingId
-                            );
-                        } else {
-                            ticketType.innerHTML = createErrorState(
-                            data.message || "Registration failed",
-                            false,
-                            false
-                            );
-                        }
-                        } catch (error) {
-                        console.error("Submission error:", error);
-                        ticketType.innerHTML = createErrorState(
-                            error instanceof TypeError ? "Network error - please check your connection" : error.message,
-                            false,
-                            error instanceof TypeError
-                        );
-                        } finally {
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = originalBtnText;
-                        }
-                    });
-
-                    // Handle QR recovery
-                    document.addEventListener("click", function(e) {
-                        if (e.target.classList.contains("recover-link")) {
-                        e.preventDefault();
-                        const email = document.getElementById("email").value;
-                        recoverQRCode(email);
-                        }
-                    });
-
-                    // Helper functions
-                    function createLoadingState() {
-                        return `
-                        <div class="state-container loading">
-                            <div class="spinner"></div>
-                            <p>Processing your registration...</p>
-                        </div>
-                        `;
-                    }
-
-                    function createSuccessState(name, email, qrCodeUrl, registrationId) {
-                        return `
-                        <div class="state-container success">
-                            <img src="assets/images/success.png" alt="Success">
-                            <h3>Registration Successful!</h3>
-                            <p>Attendee: <strong>${name}</strong></p>
-                            <p>QR code sent to <strong>${email}</strong></p>
-                            ${qrCodeUrl ? `
-                            <div class="qr-container">
-                                <img src="${qrCodeUrl}" class="qr-preview" alt="QR Code">
-                                <p class="registration-id">ID: ${registrationId}</p>
-                            </div>
-                            ` : ''}
-                            <div class="actions">
-                            <button onclick="downloadQR('${qrCodeUrl}', '${name}')">Download QR</button>
-                            </div>
-                            <div class="countdown">Closing in <span>10</span>s</div>
-                        </div>
-                        `;
-                    }
-
-                    function createErrorState(message, isDuplicate = false, isNetworkError = false, existingId = null) {
-                        return `
-                        <div class="state-container error">
-                            <img src="assets/images/${isNetworkError ? 'warning' : 'error'}.png" alt="Error">
-                            <h3>${isNetworkError ? 'Connection Error' : 'Registration Failed'}</h3>
-                            <p>${message}</p>
-                            ${isDuplicate ? 
-                            `<div class="recovery-options">
-                                <a href="#" class="recover-link" data-id="${existingId || ''}">Resend my QR code</a>
-                                <span>or</span>
-                                <button class="retry-btn">Try Again</button>
-                            </div>` : 
-                            '<button class="retry-btn">Try Again</button>'
+                        form.addEventListener("submit", async (e) => {
+                            e.preventDefault();
+                            
+                            const submitBtn = form.querySelector("button[type='submit']");
+                            const modal = document.getElementById("modal");
+                            const overlay = document.getElementById("overlay");
+                            const ticketType = document.getElementById("ticketType");
+                            
+                            if (!submitBtn || !modal || !overlay || !ticketType) {
+                            console.error("Required DOM elements not found");
+                            return;
                             }
-                        </div>
-                        `;
-                    }
 
-                    async function recoverQRCode(email) {
-                        const ticketType = document.getElementById("ticketType");
-                        if (!ticketType) return;
+                            // Loading state
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = "Registering...";
+                            ticketType.innerHTML = createLoadingState();
 
-                        ticketType.innerHTML = createLoadingState();
-                        
-                        try {
-                        const response = await fetch("YOUR_SCRIPT_URL_HERE?action=recoverQR", {
-                            method: "POST",
-                            headers: {
-                            "Content-Type": "application/x-www-form-urlencoded",
-                            },
-                            body: `email=${encodeURIComponent(email)}`
+                            try {
+                            const formData = new FormData(form);
+                            formData.append('origin', ALLOWED_ORIGIN);
+                            
+                            const response = await fetch(SCRIPT_URL, {
+                                method: "POST",
+                                headers: {
+                                "Content-Type": "application/x-www-form-urlencoded",
+                                "Origin": ALLOWED_ORIGIN
+                                },
+                                body: new URLSearchParams(formData).toString(),
+                                credentials: 'omit'
+                            });
+
+                            if (!response.ok) {
+                                const errorData = await response.json();
+                                throw new Error(errorData.message || `HTTP error! Status: ${response.status}`);
+                            }
+                            
+                            const data = await response.json();
+                            
+                            if (data.status === "success") {
+                                ticketType.innerHTML = createSuccessState(data.data);
+                                startAutoClose(modal, overlay, form);
+                            } else {
+                                ticketType.innerHTML = createErrorState(data);
+                            }
+                            } catch (error) {
+                            ticketType.innerHTML = createErrorState({
+                                message: error.message,
+                                code: error instanceof TypeError ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR'
+                            });
+                            } finally {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = "Register";
+                            }
                         });
 
-                        const data = await response.json();
-                        
-                        if (data.status === "success") {
-                            ticketType.innerHTML = createSuccessState(
-                            data.name,
-                            data.email,
-                            data.qrCodeUrl || '',
-                            data.registrationId || ''
-                            );
-                        } else {
-                            throw new Error(data.message || "Recovery failed");
+                        // Helper functions
+                        function createLoadingState() {
+                            return `<div class="loading">Processing...</div>`;
                         }
-                        } catch (error) {
-                        ticketType.innerHTML = createErrorState(
-                            error.message,
-                            false,
-                            error instanceof TypeError
-                        );
-                        }
-                    }
 
-                    function startAutoClose(modal, overlay, form) {
-                        let seconds = 10;
-                        const countdownEl = modal.querySelector('.countdown span');
-                        
-                        const timer = setInterval(() => {
-                        seconds--;
-                        if (countdownEl) countdownEl.textContent = seconds;
-                        
-                        if (seconds <= 0) {
-                            clearInterval(timer);
-                            modal.style.display = 'none';
-                            overlay.style.display = 'none';
-                            form.reset();
+                        function createSuccessState(data) {
+                            return `
+                            <div class="success">
+                                <h3>Registration Successful!</h3>
+                                <p>QR code sent to ${data.email}</p>
+                                <img src="${data.qrCodeUrl}" class="qr-code">
+                                <div class="countdown">Closing in <span>10</span>s</div>
+                            </div>
+                            `;
                         }
-                        }, 1000);
-                    }
 
-                    // Add to global scope for button onclick handlers
-                    window.downloadQR = function(url, name) {
-                        if (!url) return;
-                        
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = `${name.replace(/\s+/g, '_')}_Event_QR.png`;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                    };
-                    });
+                        function createErrorState(data) {
+                            const isNetworkError = data.code === 'NETWORK_ERROR';
+                            return `
+                            <div class="error">
+                                <h3>${isNetworkError ? 'Network Error' : 'Registration Failed'}</h3>
+                                <p>${data.message}</p>
+                                <button onclick="location.reload()">Try Again</button>
+                            </div>
+                            `;
+                        }
+
+                        function startAutoClose(modal, overlay, form) {
+                            let seconds = 10;
+                            const countdownEl = modal.querySelector('.countdown span');
+                            const timer = setInterval(() => {
+                            seconds--;
+                            if (countdownEl) countdownEl.textContent = seconds;
+                            if (seconds <= 0) {
+                                clearInterval(timer);
+                                modal.style.display = 'none';
+                                overlay.style.display = 'none';
+                                form.reset();
+                            }
+                            }, 1000);
+                        }
+                        });
                     
                 </script>
                 <div class="col-lg-12">
